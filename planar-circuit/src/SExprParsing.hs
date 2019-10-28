@@ -41,7 +41,7 @@ parseNet = do
 parseCode :: Parser SExpr
 parseCode = do   
                 char '('
-                string "code" 
+                string "code"
                 x <- many (noneOf "(") -- consume whole string i.e. "(code 1)" and terminate
                 return (SAtom x)
                 
