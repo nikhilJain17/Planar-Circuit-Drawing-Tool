@@ -12,6 +12,7 @@ space,
 symb,
 apply,
 (+++),
+-- (Parsing.++),
 token,
 isSpace,
 symbol,
@@ -29,7 +30,9 @@ chainr,
 parse',
 letter,
 digit,
-many1
+many1,
+parens
+-- consumeChar
 -- isDigit
 -- newline_search
 ) 
@@ -246,6 +249,10 @@ s +-+ t = t Prelude.++ " " Prelude.++ s
 -- Ex:      apply symbol "=3" = [('=', "3")]
 symbol :: Parser Char
 symbol = oneOf "!$%&|*+-/:<=?>@^_~#"
+
+parens :: Parser Char
+parens = oneOf "()"
+
 -- symbol = sat Data.Char.isSymbol
 
 -- Def:     Succeeds if current char is in input string
@@ -330,6 +337,12 @@ parse' p sn s = if length (parse p s) == 0 then Left sn
 
 letter :: Parser Char
 letter = sat isAlpha 
+
+consumeChar :: Parser Char
+consumeChar = undefined
+-- consumeLetter = sat (not elem ["(", ")"])
+-- digit :: Parser Char
+-- digit = sat Parsing.isDigit
 
 
 

@@ -21,32 +21,50 @@ instance Show SExpr where
 parseSExpr :: Parser (SExpr)
 parseSExpr = 
     do
-        do
-            char '('
-            x <- parseList
-            char ')'
-            return x
-    +++ parseAtom
+        parseNet 
+        +++ parseCode
+        +++ parseNode
+        +++ parseConnections
 
-
+-- @todo delete this?
 parseList :: Parser (SExpr)
 parseList = liftM WellFormedList (sepby parseSExpr spaces)
 
-parseAtom :: Parser SExpr
-parseAtom = do
-                char '"'
-                x <- many (noneOf "\"")
-                char '"'
+-- recursive cases for each piece of info in netlist
+parseNet :: Parser SExpr
+parseNet = do   
+                char '('
+                string "net"
+                x <- many (noneOf "()")
+                return (SAtom x)
+
+parseCode :: Parser SExpr
+parseCode = do   
+                char '('
+                string "code"
+                x <- many (noneOf "(") -- consume whole string i.e. "(code 1)" and terminate
                 return (SAtom x)
                 
+parseNode :: Parser SExpr
+parseNode = do   
+                char '('
+                string "node"
+                x <- many (noneOf "()")
+                return (SAtom x)              
+
+-- @TODO figure this out 
+-- extract whole name and net to be broken down even more later
+parseConnections :: Parser SExpr
+parseConnections = do   
+                char '('
+                string "name"
+                x <- endBy letter (string ")))") -- just get a bunch of letters
+                -- string ")))" -- extract actual i.e. (name "Net-(R3-Pad1)")
+                return (SAtom x)
+
+
+
 -- parseAtom :: Parser SExpr
 -- parseAtom = do
 --                 result <- many (noneOf "()") 
 --                 return (SAtom result) -- lift from Str to SExpr
-
--- @TODO
-parseNet = undefined
-parseNode = undefined
-
--- do i need this lmoa
--- parseAtom :: Parser 
