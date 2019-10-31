@@ -56,7 +56,6 @@ parseNames = do
     name <- manyTill item (string "\")") 
     return (SAtom name)
 
-
 -- parseNode :: Parser SExpr
 -- parseNode = do   
 --                 char '('
