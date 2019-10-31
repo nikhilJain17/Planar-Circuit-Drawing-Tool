@@ -16,6 +16,8 @@ data SExpr = -- @todo make a have constraint of show
 
 instance Show SExpr where
     show (SAtom a) = show a
+    show (SNil) = "Nil"
+    show (SNet a b) = "<" ++ (show a) ++ "--" ++ (show b) ++ ">"
     show (WellFormedList l) = unwords $ map show l 
 
 parseSExpr :: Parser (SExpr)
@@ -24,7 +26,7 @@ parseSExpr =
         parseNet 
         +++ parseCode
         +++ parseNode
-        +++ parseConnections
+        +++ parseNames
 
 -- @todo delete this?
 parseList :: Parser (SExpr)
@@ -45,24 +47,41 @@ parseCode = do
                 x <- many (noneOf "(") -- consume whole string i.e. "(code 1)" and terminate
                 return (SAtom x)
                 
-parseNode :: Parser SExpr
-parseNode = do   
-                char '('
-                string "node"
-                x <- many (noneOf "()")
-                return (SAtom x)              
-
--- @TODO figure this out 
+-- @TODO figure this out (needs to start at "name" and end at ")))" probably)
 -- extract whole name and net to be broken down even more later
-parseConnections :: Parser SExpr
-parseConnections = do   
-                char '('
-                string "name"
-                x <- endBy letter (string ")))") -- just get a bunch of letters
-                -- string ")))" -- extract actual i.e. (name "Net-(R3-Pad1)")
-                return (SAtom x)
+parseNames :: Parser SExpr -- parses (name "Net-(C1-Pad1)")
+parseNames = do 
+    char '('
+    string "name"
+    name <- manyTill item (string "\")") 
+    return (SAtom name)
 
 
+-- parseNode :: Parser SExpr
+-- parseNode = do   
+--                 char '('
+--                 string "node"
+--                 x <- many (noneOf "()")
+--                 return (SAtom x)
+                        
+
+-- parseConnections :: Parser SExpr
+-- parseConnections = do   
+--                 char '('
+--                 string "name"
+--                 name <- manyTill item (string "\")")-- consume name
+--                 x <- many parseNode
+--                 if length x > 0 
+--                     then return (x!!0)
+--                 else return SNil 
+
+-- how is this actually working
+manyTill :: Parser Char -> Parser String -> Parser String
+manyTill p end      = scan
+                    where
+                        scan  = do{ _ <- end; return "" }
+                            +++
+                                do{ x <- p; xs <- scan; return ([x] ++ xs) }
 
 -- parseAtom :: Parser SExpr
 -- parseAtom = do
