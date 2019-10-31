@@ -56,12 +56,12 @@ parseNames = do
     name <- manyTill item (string "\")") 
     return (SAtom name) 
 
--- parseNode :: Parser SExpr
--- parseNode = do   
---                 char '('
---                 string "node"
---                 x <- many (noneOf "()")
---                 return (SAtom x)
+parseNode :: Parser SExpr
+parseNode = do   
+                char '('
+                string "node"
+                x <- manyTill item (string "))") -- think about this...
+                return (SAtom x)
                         
 
 -- parseConnections :: Parser SExpr
